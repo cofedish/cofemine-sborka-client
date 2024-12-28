@@ -1,0 +1,79 @@
+name: Create Client Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create-client-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонирование репозитория
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Шаг 2: Установка GitHub CLI
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh -y
+
+      # Шаг 3: Генерация уникального тега
+      - name: Generate Unique Tag
+        id: generate_client_tag
+        run: |
+          BASE_TAG="client-v$(date +'%Y-%m-%d')"
+          UNIQUE_SUFFIX=$(date +%s)
+          TAG="${BASE_TAG}-${UNIQUE_SUFFIX}"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "Generated tag: $TAG"
+
+      # Шаг 4: Создание ZIP-архива клиентской сборки
+      - name: Create Client ZIP Archive
+        run: |
+          mkdir -p client-build
+          cp -r mods client-build/
+          cp forge-installer.jar client-build/
+          cp -r resourcepacks client-build/
+          cd client-build
+          zip -r cofemine-client.zip .
+          mv cofemine-client.zip ../
+          cd ..
+          ls -lh cofemine-client.zip
+
+      # Шаг 5: Создание клиентского релиза
+      - name: Create Client Release
+        id: create_client_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ env.TAG }}
+          release_name: "Client Release ${{ env.TAG }}"
+          body: "Клиентский релиз ${{ env.TAG }}."
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      # Шаг 6: Загрузка клиентского архива в релиз
+      - name: Upload Client Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_client_release.outputs.upload_url }}
+          asset_path: cofemine-client.zip
+          asset_name: cofemine-client.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      # Шаг 7: Обновление тега 'latest' для клиента
+      - name: Update 'latest-client' Tag for Client
+        run: |
+          gh release delete latest-client --yes || true
+          gh release create latest-client \
+            cofemine-client.zip \
+            --title "Latest Client Release" \
+            --notes "This is the latest client release." --latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
