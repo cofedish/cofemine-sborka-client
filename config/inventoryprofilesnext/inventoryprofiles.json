@@ -1,0 +1,35 @@
+{
+    "ModSettings": {
+        "enable_profiles": {
+            "value": false
+        },
+        "first_run": false
+    },
+    "GuiSettings": {
+        "enable_profiles_ui": {
+            "value": false
+        },
+        "continuous_crafting_saved_value": false
+    },
+    "AutoRefillSettings": {
+        "refill_armor": {
+            "value": false
+        },
+        "tool_damage_threshold": 1,
+        "allow_break_for_non_enchanted": {
+            "value": true
+        },
+        "visual_durability_notification": {
+            "value": false
+        },
+        "audio_durability_notification": {
+            "value": false
+        },
+        "visual_replace_success_notification": {
+            "value": false
+        },
+        "visual_replace_failed_notification": {
+            "value": false
+        }
+    }
+}
