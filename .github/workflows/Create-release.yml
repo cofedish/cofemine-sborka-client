@@ -37,6 +37,7 @@ jobs:
           cp -r mods client-build/
           cp forge-installer.jar client-build/
           cp -r resourcepacks client-build/
+          cp -r config client-build/
           cd client-build
           zip -r cofemine-client.zip .
           mv cofemine-client.zip ../
